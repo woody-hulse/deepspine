@@ -1,0 +1,172 @@
+{
+    "name": "SpinalCord",
+    "device": {
+        "type": "cuda"
+    },
+    "seed": 1213,
+    "resume": {
+        "type": false
+    },
+    "arch": {
+        "embedding": {
+            "type": "ConvNet1d",
+            "args": {
+                "in_channels": 4,
+                "out_channels": 128,
+                "kernel_size": 1,
+                "groups": 4,
+                "activation": "relu",
+                "use_norm": true
+            }
+        }, 
+        "core": {
+            "type": "SCC",
+            "args": {
+                "Ia_neurons": 32, 
+                "II_neurons": 32, 
+                "ex_neurons": 64, 
+                "Iai_neurons": 64,
+                "mn_neurons": 64,
+                "Tmax": 100,
+                "offset": 50
+            }
+        },
+        "readout": {
+            "type": "ConvNet1d",
+            "args": {
+                "in_channels": 128,
+                "out_channels": 2,
+                "kernel_size": 1,
+                "groups": 2,
+                "activation": "none"
+            }
+        }
+    },
+    "data_loader": {
+        "train_loader_args": {
+            "batch_size": 256,
+            "num_workers": 8,
+            "shuffle": true,
+            "dataset": {
+                "type": "SyntheticDataset",
+                "args":{
+                    "file_path": "/media/data_cifs/minju/data/Synthetic/20200324",
+                    "input_type": "eesIntegratedAfferents",
+                    "output_type": "mn",
+                    "is_train": true,
+                    "input_transform": [{
+                        "type": "Normalize",
+                        "args": {
+                            "mean": [36.3205, 34.6701, 43.4881, 14.6136],
+                            "std": [45.5122, 46.5991, 29.1801, 22.4710],
+                            "axis": 1
+                        }
+                    }],
+                    "share_transform": [{
+                        "type": "TemporalCrop",
+                        "args": {
+                            "start_idx": 749,
+                            "window_size": 700,
+                            "axis": 1
+                        }
+                    }, {
+                        "type": "RandomTemporalCrop",
+                        "args": {
+                            "window_size": 150,
+                            "stride": 100,
+                            "axis": 1
+                            }
+                    }],
+                    "target_transform": [{
+                        "type": "TemporalCrop",
+                        "args": {
+                            "start_idx": 50,
+                            "window_size": 100,
+                            "axis": 1
+                        }
+                    }]
+                }
+            }
+        },
+        "valid_loader_args": {
+            "batch_size": 1014,
+            "num_workers": 8,
+            "shuffle": false,
+            "dataset": {
+                "type": "SyntheticDataset",
+                "args":{
+                    "file_path": "/media/data_cifs/minju/data/Synthetic/20200324",
+                    "input_type": "eesIntegratedAfferents",
+                    "output_type": "mn",
+                    "is_train": false,
+                    "input_transform": [{
+                        "type": "Normalize",
+                        "args": {
+                            "mean": [36.3205, 34.6701, 43.4881, 14.6136],
+                            "std": [45.5122, 46.5991, 29.1801, 22.4710],
+                            "axis": 1
+                        }
+                    }],
+                    "share_transform": [{
+                        "type": "TemporalCrop",
+                        "args": {
+                            "start_idx": 749,
+                            "window_size": 700,
+                            "axis": 1
+                        }
+                    }],
+                    "target_transform": [{
+                        "type": "TemporalCrop",
+                        "args": {
+                            "start_idx": 50,
+                            "window_size": 600,
+                            "axis": 1
+                        }
+                    }]
+                }
+            }
+        }
+    },
+    "optimizer": {
+        "embedding_cfg": {
+            "type": "Adam",
+            "args": {
+                "lr": 0.0005,
+                "weight_decay": 0.0,
+                "amsgrad": false
+            }
+        },
+        "core_cfg": {
+            "type": "Adam",
+            "args": {
+                "lr": 0.0005,
+                "weight_decay": 0.0,
+                "amsgrad": false
+            }
+        },
+        "readout_cfg": {
+            "type": "Adam",
+            "args": {
+                "lr": 0.0005,
+                "weight_decay": 0.0,
+                "amsgrad": false
+            }
+        }
+    },
+    "loss": "smooth_l1_loss",
+    "trainer": {
+        "type": "synthetic_alpha_trainer",
+        "args": {
+            "max_iter": 100000,
+            "max_norm": 1,
+
+            "save_dir": "saved/20200324/alpha/many-to-many/temporal_kernel/multi_training_crops/deepSpine_100",
+            "save_period": 1000,
+
+            "eval_period": 1000,
+            "is_sliding_window": true,
+            "sliding_window_size": 150,
+            "stride": 100
+        }
+    }
+} 
