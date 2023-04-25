@@ -95,7 +95,7 @@ class Trainer:
         optim_embedding = self.optim_embeddings[session]
         optim_readout = self.optim_readouts[session]
 
-        kinematics, emg, ees = x
+        kinematics, emg, ees, meta = x
         
         # [batch x dim x time]
         kinematics = kinematics.to(self.device)
