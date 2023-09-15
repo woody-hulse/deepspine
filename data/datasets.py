@@ -32,7 +32,8 @@ class SyntheticDataset(Dataset):
         self.meta = read_memmap(meta_path)[:, np.newaxis, :]
 
         if input_type == "kinematics":
-            self.inputs = np.squeeze(self.inputs, axis=3)
+            print(self.inputs.shape)
+            # self.inputs = np.squeeze(self.inputs, axis=3)
             
         if output_type == "emg":
             self.outputs = np.abs(self.outputs)

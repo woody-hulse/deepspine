@@ -1,7 +1,7 @@
 {
     "name": "SpinalCord",
     "device": {
-        "type": "cuda"
+        "type": "cpu"
     },
     "seed": 1213,
     "resume": {
@@ -49,7 +49,7 @@
             "dataset": {
                 "type": "SyntheticDataset",
                 "args":{
-                    "file_path": "/media/data_cifs/projects/prj_deepspine/DARPA_RERUN/synthetic/20200216",
+                    "file_path": "/Users/woodyhulse/Downloads/20200324",
                     "input_type": "kinematics",
                     "output_type": "mn",
                     "is_ees": true,
@@ -80,7 +80,7 @@
             "dataset": {
                 "type": "SyntheticDataset",
                 "args":{
-                    "file_path": "/media/data_cifs/projects/prj_deepspine/DARPA_RERUN/synthetic/20200216",
+                    "file_path": "/Users/woodyhulse/Downloads/20200324",
                     "input_type": "kinematics",
                     "output_type": "mn",
                     "is_ees": true,

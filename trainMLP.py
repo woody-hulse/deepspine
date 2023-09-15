@@ -14,6 +14,7 @@ import time, os
 import numpy as np
 import scipy.stats as scistats
 import json
+from tqdm import tqdm
 
 class MLP(nn.Module):
   def __init__(self, n_in, n_out):
@@ -25,8 +26,21 @@ class MLP(nn.Module):
       nn.Linear(128, n_out),
     )
 
+class GRU(nn.Module):
+  def __init__(self, n_in, n_out):
+    super().__init__()
+    self.flatten = nn.Flatten()
+    self.gru = nn.GRU(n_in, 8, 3, batch_first=True)
+    self.relu = nn.ReLU()
+    self.linear = nn.Linear(8, n_out)
+
   def forward(self, x):
-    return self.layers(x)
+    x = self.flatten(x)
+    x, hidden = self.gru(x)
+    x = self.relu(x)
+    x = self.linear(x)
+
+    return x
 
 
 def main(config):
@@ -47,12 +61,12 @@ def main(config):
     criterion = getattr(masked_loss, config['loss'])
     MAX_EPOCHS = 1000
 
-    model = MLP(n_in = 400 * 3, n_out = 400 * 2) 
+    model = GRU(n_in = 400 * 3, n_out = 400 * 2) 
     model = model.to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
-    for epoch in range(MAX_EPOCHS):
+    for epoch in tqdm(range(MAX_EPOCHS)):
         for kinematics, emg, ees, _ in train_loaders[0]:
 
             optimizer.zero_grad()
@@ -88,8 +102,8 @@ def main_test(config):
     valid_loaders = get_loader(config['data_loader']['valid_loader_args'])
 
     # get the model and its parameters
-    model = MLP(n_in = 400 * 3, n_out = 400 * 2) 
-    model.load_state_dict(torch.load('outputs/mlp_beta.pth'))
+    model = GRU(n_in = 400 * 3, n_out = 400 * 2) 
+    # model.load_state_dict(torch.load('outputs/mlp_beta.pth'))
     model = model.to(device)
     model = model.eval()
 
@@ -147,6 +161,6 @@ if __name__ == '__main__':
     with open(args.config) as config_json:
         config = json.load(config_json)
 
-    #main(config)
-    main_test(config)
+    main(config)
+    # main_test(config)
 
